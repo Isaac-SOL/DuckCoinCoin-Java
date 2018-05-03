@@ -13,6 +13,20 @@ public class Blockchain {
 	}
 	
 	/**
+	 * Génère une Blockchain aléatoire selon les paramètres donnés.
+	 * @param difficulte Difficulté de la blockchain générée
+	 * @param nbBlocks Nombre de Blocks à générer
+	 * @return Blockchain générée aléatoirement
+	 */
+	public static Blockchain randomBlockchain(int difficulte, int nbBlocks) {
+		Blockchain bc = new Blockchain(difficulte);
+		for (int i = 0; i < nbBlocks; i++) {
+			bc.addBlock(Block.randomBlock());
+		}
+		return bc;
+	}
+	
+	/**
 	 * Ajoute un block à la blockchain.
 	 * Le block est supposé étant fini: L'ajout ajoute les informations liées à la blockchain
 	 * et mine le block.

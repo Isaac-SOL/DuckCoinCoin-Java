@@ -1,6 +1,8 @@
 package dcc;
 
 import java.util.ArrayList;
+import java.util.Random;
+
 import sha256.HashUtil;
 
 public class Transaction {
@@ -37,6 +39,10 @@ public class Transaction {
 		}
 		
 		return hashes.get(0);
+	}
+	
+	public static String randomTransaction() {
+		return "Source-Destination : " + new Random().nextInt(330) + 1;
 	}
 
 }

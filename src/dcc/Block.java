@@ -1,6 +1,8 @@
 package dcc;
 
 import java.util.ArrayList;
+import java.util.Random;
+
 import sha256.HashUtil;
 
 /**
@@ -24,13 +26,24 @@ public class Block {
 	 * @param timestamp date de création du block
 	 * @param prevHash hash du block précédent dans la blockchain
 	 */
-	public Block(int index, String timestamp, String prevHash) {
+	public Block() {
 		super();
-		this.index = index;
-		this.timestamp = timestamp;
-		this.prevHash = prevHash;
+		this.timestamp = getTimestamp();
 		this.nonce = 0;
 		transactions = new ArrayList<String>();
+	}
+	
+	/**
+	 * Initialise un block avec des transactions aléatoires.
+	 * @return Block avec des transactions aléatoires.
+	 */
+	public static Block randomBlock() {
+		Block b = new Block();
+		int nb = new Random().nextInt(10) + 1;
+		for (int i = 0; i < nb; i++) {
+			b.addTransaction(Transaction.randomTransaction());
+		}
+		return b;
 	}
 	
 	/**
