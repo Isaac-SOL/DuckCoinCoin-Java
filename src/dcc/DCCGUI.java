@@ -17,7 +17,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
 
 public class DCCGUI {
 
@@ -26,8 +30,10 @@ public class DCCGUI {
 	private JFrame frame;
 	private JTextField textFieldDiff;
 	private JTextField textFieldBlocks;
-	private JTextField textFieldBlockNB;
-	private JTextField textFieldTrans;
+	private JTextArea textAreaBlockchain;
+	
+	JFileChooser fileChooser;
+	FileFilter fileFilter;
 
 	/**
 	 * Launch the application.
@@ -58,16 +64,62 @@ public class DCCGUI {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 800, 600);
+		frame.setBounds(100, 100, 1000, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		fileChooser = new JFileChooser();
+		fileFilter = new FileNameExtensionFilter("Fichiers JSON", "json");
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.addChoosableFileFilter(fileFilter);
+		fileChooser.setFileFilter(fileFilter);
+
 		JSplitPane splitPane = new JSplitPane();
 		frame.getContentPane().add(splitPane, BorderLayout.CENTER);
 		
 		JPanel panel = new JPanel();
 		splitPane.setLeftComponent(panel);
 		
+		JButton btnVrifierLaBlockchain = new JButton("Vérifier la Blockchain");
+		btnVrifierLaBlockchain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				verifResult(bc.verifBlockchain());
+			}
+		});
+		btnVrifierLaBlockchain.setEnabled(false);
+		
+		JButton btnExportJSON = new JButton("Exporter au format JSON");
+		btnExportJSON.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportJSONFile();
+			}
+		});
+		btnExportJSON.setEnabled(false);
+		
+		JButton btnImporterJSON = new JButton("Importer une Blockchain JSON");
+		btnImporterJSON.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				bc = importJSONFile();
+				if (bc != null) {
+					majAffichage();
+					if (!btnVrifierLaBlockchain.isEnabled()) {
+						btnVrifierLaBlockchain.setEnabled(true);
+						btnExportJSON.setEnabled(true);
+					}
+				}
+			}
+		});
+		
 		JButton btnGnrerUneNouvelle = new JButton("Générer une nouvelle Blockchain");
+		btnGnrerUneNouvelle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				bc = Blockchain.randomBlockchain(Integer.parseInt(textFieldDiff.getText()), Integer.parseInt(textFieldBlocks.getText()));
+				majAffichage();
+				if (!btnVrifierLaBlockchain.isEnabled()) {
+					btnVrifierLaBlockchain.setEnabled(true);
+					btnExportJSON.setEnabled(true);
+				}
+			}
+		});
 		
 		textFieldDiff = new JTextField();
 		textFieldDiff.setText("4");
@@ -83,40 +135,15 @@ public class DCCGUI {
 		
 		JSeparator separator = new JSeparator();
 		
-		JButton btnImporterJSON = new JButton("Importer une Blockchain JSON");
-		
 		JSeparator separator_1 = new JSeparator();
 		
-		JButton btnVrifierLaBlockchain = new JButton("Vérifier la Blockchain");
-		
 		JSeparator separator_2 = new JSeparator();
-		
-		JLabel lblNBlock = new JLabel("N° Block");
-		
-		textFieldBlockNB = new JTextField();
-		textFieldBlockNB.setColumns(10);
-		
-		JButton btnDeleteBlock = new JButton("Supprimer un Block");
-		
-		textFieldTrans = new JTextField();
-		textFieldTrans.setColumns(10);
-		
-		JLabel lblNTransaction = new JLabel("N° Transaction");
-		
-		JSeparator separator_3 = new JSeparator();
-		
-		JButton btnDeleteTransaction = new JButton("Supprimer une Transaction");
-		
-		JButton btnExportJSON = new JButton("Exporter au format JSON");
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
 					.addGap(10)
 					.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-						.addGroup(gl_panel.createSequentialGroup()
-							.addComponent(btnDeleteBlock, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-							.addContainerGap())
 						.addGroup(gl_panel.createSequentialGroup()
 							.addComponent(separator, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
 							.addContainerGap())
@@ -134,31 +161,14 @@ public class DCCGUI {
 										.addComponent(lblNombreDeBlocks, Alignment.TRAILING)
 										.addComponent(textFieldBlocks, GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)))
 								.addComponent(btnGnrerUneNouvelle, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-								.addComponent(btnImporterJSON, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-								.addGroup(gl_panel.createSequentialGroup()
-									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-										.addComponent(lblNTransaction)
-										.addComponent(lblNBlock))
-									.addPreferredGap(ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
-									.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-										.addComponent(textFieldTrans, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-										.addComponent(textFieldBlockNB, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-									.addPreferredGap(ComponentPlacement.RELATED)))
+								.addComponent(btnImporterJSON, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
 							.addGap(10))
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(btnVrifierLaBlockchain, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
 								.addComponent(separator_2, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
 							.addContainerGap())))
-				.addGroup(gl_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(btnDeleteTransaction, GroupLayout.PREFERRED_SIZE, 214, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-				.addGroup(gl_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(separator_3, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-					.addContainerGap())
-				.addGroup(gl_panel.createSequentialGroup()
+				.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(btnExportJSON, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
 					.addContainerGap())
@@ -186,40 +196,62 @@ public class DCCGUI {
 					.addComponent(btnVrifierLaBlockchain)
 					.addGap(18)
 					.addComponent(separator_2, GroupLayout.PREFERRED_SIZE, 4, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblNBlock)
-						.addComponent(textFieldBlockNB, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblNTransaction)
-						.addComponent(textFieldTrans, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnDeleteBlock)
-					.addGap(3)
-					.addComponent(btnDeleteTransaction)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(separator_3, GroupLayout.PREFERRED_SIZE, 4, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
+					.addGap(18)
 					.addComponent(btnExportJSON)
-					.addContainerGap())
+					.addContainerGap(309, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		
-		JTextArea textAreaBlockchain = new JTextArea();
-		splitPane.setRightComponent(textAreaBlockchain);
+		JScrollPane scrollPane = new JScrollPane();
+		splitPane.setRightComponent(scrollPane);
+		
+		textAreaBlockchain = new JTextArea();
+		scrollPane.setViewportView(textAreaBlockchain);
 	}
 	
-	public void ImportJson() { //Généreusement cconféré par Calvin Dogus [À Modifier]
-	JFileChooser jsonFile = new JFileChooser();
-	        FileFilter filter = new FileNameExtensionFilter("json files", "json");
-	        jsonFile.addChoosableFileFilter(filter);
-	        jsonFile.setAcceptAllFileFilterUsed(false);
-	        jsonFile.setFileFilter(filter);
-	        int ret = jsonFile.showDialog(null, "Open file");
-	                  if (ret == JFileChooser.APPROVE_OPTION) {
-	              File file = jsonFile.getSelectedFile();
-	              this.bc = BCJsonUtils.BCJsonReader(file.getName());
-	            }
+	/**
+	 * Met à jour l'affichage de la blockchain en fonction de celle contenue.
+	 */
+	private void majAffichage() {
+		textAreaBlockchain.setText(bc.toPrettyString());
+	}
+	
+	/**
+	 * Affiche une boîte de dialogue expliquant le résultat d'une vérification.
+	 * @param result résultat de la vérification
+	 */
+	private void verifResult(int result) {
+		if (result == -1)
+			JOptionPane.showMessageDialog(null, "Il n'y a aucune erreur dans la Blockchain.");
+		else if (result == 0)
+			JOptionPane.showMessageDialog(null, "Le premier Block n'est pas un génésis valide.");
+		else
+			JOptionPane.showMessageDialog(null, "Il y a une erreur dans le Block #" + result);
+	}
+	
+	/**
+	 * Ouvre une boîte de dialogue pour choisir un fichier JSON
+	 * Ce fichier est converti en Blockchain qui est renvoyée.
+	 * @return Blockchain créée à partir du fichier
+	 */
+	private Blockchain importJSONFile() {
+        int ret = fileChooser.showOpenDialog(null);
+        if (ret == JFileChooser.APPROVE_OPTION) {
+        	File fJson = fileChooser.getSelectedFile();
+        	return BCJsonUtils.BCJsonReader(fJson.getAbsolutePath());
+        }
+        return null;
+	}
+	
+	/**
+	 * Ouvre une boîte de dialogue pour créer un fichier dans lequel la Blockchain sera convertie en JSON.
+	 */
+	private void exportJSONFile() {
+	int ret = fileChooser.showSaveDialog(null);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			File fJson = fileChooser.getSelectedFile();
+			System.out.println(fJson.getName());
+			BCJsonUtils.BCJsonWriterFormatted(bc, fJson.getAbsolutePath());
+		}
 	}
 }

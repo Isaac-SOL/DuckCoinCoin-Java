@@ -42,7 +42,7 @@ public class Transaction {
 	}
 	
 	public static String randomTransaction() {
-		return "Source-Destination : " + new Random().nextInt(330) + 1;
+		return "Source-Destination : " + (new Random().nextInt(MAX_VALUE) + 1);
 	}
 
 }

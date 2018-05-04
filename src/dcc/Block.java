@@ -28,7 +28,7 @@ public class Block {
 	 */
 	public Block() {
 		super();
-		this.timestamp = getTimestamp();
+		this.timestamp = Util.getTimestamp();
 		this.nonce = 0;
 		transactions = new ArrayList<String>();
 	}
@@ -63,6 +63,23 @@ public class Block {
 	}
 	
 	/**
+	 * Renvoie un String visuellement appréciable.
+	 * @return Un joli String
+	 */
+	public String toPrettyString() {
+		String s = "   --- Block #" + index + " ---\n";
+		s += "Créé le " + timestamp + "\n\n";
+		s += "Transactions:\n";
+		for (String transaction : transactions)
+			s += "    " + transaction + "\n";
+		s += "Hash :\t\t" + hash + "\n";
+		s += "Hash précédent :\t" + prevHash + "\n";
+		s += "Merkle root :\t\t" + merkleRoot + "\n";
+		s += "Nonce = " + nonce + "\n";
+		return s;
+	}
+	
+	/**
 	 * Calcule le hash du block et le stocke dans sa variable hash.
 	 */
 	public void calcHash() {
@@ -76,8 +93,9 @@ public class Block {
 	 * @return String s répété num fois
 	 */
 	private String multiplyString(String s, int num) {
-		for (int i = 0; i < num; i++)
-			s += s;
+		String sstart = s;
+		for (int i = 1; i < num; i++)
+			s += sstart;
 		return s;
 	}
 	
@@ -106,7 +124,9 @@ public class Block {
 	 * @return true si la merkle root est valide, false sinon
 	 */
 	public boolean verifMerkleRoot() {
-		return merkleRoot == Transaction.calcMerkleRoot(transactions);
+		boolean b = merkleRoot.equals(Transaction.calcMerkleRoot(transactions));
+		if (!b) System.out.println("Erreur: La merkle root du block #" + index + " est invalide.");
+		return b;
 	}
 	
 	/**
@@ -116,8 +136,10 @@ public class Block {
 	 */
 	public boolean verifHash(int difficulte) {
 		boolean b;
-		b = hash == HashUtil.applySha256(toString());
-		if (b) b = hash.startsWith(multiplyString("0", difficulte));
+		b = hash.equals(HashUtil.applySha256(toString()));
+		if (!b) System.out.println("Erreur: hash du Block #" + index + " Incorrect.");
+		else b = hash.startsWith(multiplyString("0", difficulte));
+		if (!b) System.out.println("Erreur: Le hash du Block #" + index + " ne correspond pas à la difficulté.");
 		return b;
 	}
 	
@@ -135,7 +157,7 @@ public class Block {
 	 * @return true si ce block est un génésis, false sinon
 	 */
 	public boolean isGenesis() {
-		return prevHash == "0" && nonce == 0 && transactions.size() == 1 && transactions.get(0) == "Genesis";
+		return prevHash.equals("0") && nonce == 0 && transactions.size() == 1 && transactions.get(0).equals("Genesis");
 	}
 
 	public int getIndex() {
